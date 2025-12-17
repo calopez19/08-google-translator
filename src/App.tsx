@@ -5,7 +5,6 @@ import { useStore } from "./hooks/useStore";
 
 function App() {
   const {fromLenguage,setFromLenguage} = useStore()
-  console.log(fromLenguage);
   return (
     
     <div>
@@ -16,6 +15,7 @@ function App() {
       >
         cambiar a Español
       </button>
+      <p>{fromLenguage}</p>
     </div>
   );
 }
