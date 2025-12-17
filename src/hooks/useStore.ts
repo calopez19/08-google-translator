@@ -1,80 +1,123 @@
-import { useReducer } from "react";
-import type { Action, FromLenguage, Lenguages, State } from "../assets/types";
+import { useReducer } from 'react'
+import { AUTO_LANGUAGE } from '../constants'
+import { type FromLanguage, type Language, type Action, type State } from '../assets/types'
 
+// 1. Create a initialState
 const initialState: State = {
-  fromLenguage: "auto",
-  toLenguage: "en",
-  fromText: "",
-  result: "",
-  loading: false,
-};
-
-function reducer(state: State, action: Action) {
-  const { type } = action;
-
-  if (type === "INTERCHANGE_LENGUAGES") {
-    return {
-      ...state,
-      fromLenguage: state.toLenguage,
-      toLenguage: state.fromLenguage,
-    };
-  }
-
-  if (type === "SET_FROM_LENGUAGE") {
-    return {
-      ...state,
-      fromLenguage: action.payload,
-    };
-  }
-  if (type === "SET_TO_LENGUAGE") {
-    return {
-      ...state,
-      toLenguage: action.payload,
-    };
-  }
-  if (type === "SET_FROM_TEXT") {
-    return {
-      ...state,
-      loading: true,
-      fromText: action.payload,
-      result: "",
-    };
-  }
-
-  if (type === "SET_RESULT") {
-    return { ...state, loading: false, result: action.payload };
-  }
-  return state;
+  fromLanguage: 'auto',
+  toLanguage: 'en',
+  fromText: '',
+  result: '',
+  loading: false
 }
 
-export function useStore() {
-  const [{ fromLenguage, toLenguage, fromText, result, loading }, dispatch] =
-    useReducer(reducer, initialState);
-  const interchangeLenguage = () => {
-    dispatch({ type: "INTERCHANGE_LENGUAGES" });
-  };
-  const setFromLenguage = (payload: FromLenguage) => {
-    dispatch({ type: "SET_FROM_LENGUAGE", payload: payload });
-  };
-  const setToLenguage = (payload: Lenguages) => {
-    dispatch({ type: "SET_TO_LENGUAGE", payload: payload });
-  };
+// 2. Create a reducer
+function reducer (state: State, action: Action) {
+  const { type } = action
+
+  if (type === 'INTERCHANGE_LANGUAGES') {
+    // lógica del estado dentro del reducer
+    // porque lo evitamos en los componentes
+    if (state.fromLanguage === AUTO_LANGUAGE) return state
+
+    const loading = state.fromText !== ''
+
+    return {
+      ...state,
+      loading,
+      result: '',
+      fromLanguage: state.toLanguage,
+      toLanguage: state.fromLanguage
+    }
+  }
+
+  if (type === 'SET_FROM_LANGUAGE') {
+    if (state.fromLanguage === action.payload) return state
+
+    const loading = state.fromText !== ''
+
+    return {
+      ...state,
+      fromLanguage: action.payload,
+      result: '',
+      loading
+    }
+  }
+
+  if (type === 'SET_TO_LANGUAGE') {
+    if (state.toLanguage === action.payload) return state
+    const loading = state.fromText !== ''
+
+    return {
+      ...state,
+      toLanguage: action.payload,
+      result: '',
+      loading
+    }
+  }
+
+  if (type === 'SET_FROM_TEXT') {
+    const loading = action.payload !== ''
+
+    return {
+      ...state,
+      loading,
+      fromText: action.payload,
+      result: ''
+    }
+  }
+
+  if (type === 'SET_RESULT') {
+    return {
+      ...state,
+      loading: false,
+      result: action.payload
+    }
+  }
+
+  return state
+}
+
+export function useStore () {
+  // 3. usar el hook useReducer
+  const [{
+    fromLanguage,
+    toLanguage,
+    fromText,
+    result,
+    loading
+  }, dispatch] = useReducer(reducer, initialState)
+
+  const interchangeLanguages = () => {
+    dispatch({ type: 'INTERCHANGE_LANGUAGES' })
+  }
+
+  const setFromLanguage = (payload: FromLanguage) => {
+    dispatch({ type: 'SET_FROM_LANGUAGE', payload })
+  }
+
+  const setToLanguage = (payload: Language) => {
+    dispatch({ type: 'SET_TO_LANGUAGE', payload })
+  }
+
   const setFromText = (payload: string) => {
-    dispatch({ type: "SET_FROM_TEXT", payload: payload });
-  };
+    dispatch({ type: 'SET_FROM_TEXT', payload })
+  }
+
   const setResult = (payload: string) => {
-    dispatch({ type: "SET_RESULT", payload: payload });
-  };
+    dispatch({ type: 'SET_RESULT', payload })
+  }
+
   return {
-    fromLenguage,
-    toLenguage,
+    fromLanguage,
+    toLanguage,
     fromText,
     result,
     loading,
-    interchangeLenguage,
-    setFromLenguage,
-    setToLenguage,
+    interchangeLanguages,
+    setFromLanguage,
+    setToLanguage,
     setFromText,
-    setResult,
-  };
+    setResult
+  }
 }
